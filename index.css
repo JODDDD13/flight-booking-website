@@ -1,0 +1,75 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f4f4f4;
+  color: #333;
+}
+header {
+  background: #0052cc;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+}
+.search-form, #results, #seat-selection, #confirmation {
+  background: white;
+  padding: 20px;
+  margin: 20px auto;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 8px rgba(0,0,0,0.1);
+}
+label {
+  display: block;
+  margin: 10px 0;
+}
+button {
+  background: #0052cc;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+button:hover {
+  background: #003d99;
+}
+.hidden { display: none; }
+
+.plane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.cockpit {
+  background: #444;
+  color: white;
+  padding: 10px;
+  width: 80%;
+  text-align: center;
+  border-radius: 10px 10px 0 0;
+}
+.seats {
+  display: grid;
+  grid-template-columns: repeat(6, 40px);
+  gap: 8px;
+  padding: 20px;
+}
+.seat {
+  width: 40px;
+  height: 40px;
+  background: #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  line-height: 40px;
+}
+.seat.selected {
+  background: #28a745;
+  color: white;
+}
+.seat.occupied {
+  background: #ff4d4d;
+  cursor: not-allowed;
+}

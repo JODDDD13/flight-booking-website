@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Development Timeline</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+    }
+    .gantt {
+      display: grid;
+      grid-template-columns: 250px repeat(12, 1fr);
+      border: 1px solid #ccc;
+    }
+    .gantt div {
+      border: 1px solid #ddd;
+      padding: 6px;
+      text-align: center;
+      font-size: 13px;
+    }
+    .header {
+      background: #f1f1f1;
+      font-weight: bold;
+    }
+    .task-name {
+      background: #fff;
+      text-align: left;
+      font-weight: bold;
+    }
+    .bar {
+      background: orange;
+      color: white;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>Website Development Timeline</h2>
+  <div class="gantt">
+    <!-- Headers -->
+    <div class="header">Task</div>
+    <div class="header">Aug 18</div>
+    <div class="header">Aug 25</div>
+    <div class="header">Sep 01</div>
+    <div class="header">Sep 08</div>
+    <div class="header">Sep 15</div>
+    <div class="header">Sep 22</div>
+    <div class="header">Sep 29</div>
+    <div class="header">Oct 06</div>
+    <div class="header">Oct 13</div>
+    <div class="header">Oct 20</div>
+    <div class="header">Oct 27</div>
+    <div class="header">Nov 03</div>
+
+    <!-- Task 1 -->
+    <div class="task-name">Project Requirements Gathering</div>
+    <div class="bar">5d</div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+
+    <!-- Task 2 -->
+    <div class="task-name">Technology Stack Finalization</div>
+    <div></div><div class="bar">7d</div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+
+    <!-- Task 3 -->
+    <div class="task-name">UI/UX Design (Web)</div>
+    <div></div><div></div><div class="bar">7d</div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+
+    <!-- Task 4 -->
+    <div class="task-name">Frontend Development (Web)</div>
+    <div></div><div></div><div></div><div class="bar">10d</div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+
+    <!-- Task 5 -->
+    <div class="task-name">Backend Development (Web)</div>
+    <div></div><div></div><div></div><div></div><div class="bar">15d</div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+
+    <!-- Task 6 -->
+    <div class="task-name">Web App Testing & Debugging</div>
+    <div></div><div></div><div></div><div></div><div></div><div class="bar">20d</div><div></div><div></div><div></div><div></div><div></div><div></div>
+
+    <!-- Task 7 -->
+    <div class="task-name">Final Integration & Deployment</div>
+    <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div class="bar">10d</div><div></div><div></div><div></div>
+  </div>
+</body>
+</html>

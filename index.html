@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Venture ✈ Vista </title>
+<style>
+  :root{
+    --bg:#f4f7fb; --card:#fff; --accent:#0b6efd; --muted:#667085; --ink:#0f172a;
+    --ok:#16a34a; --warn:#b91c1c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
+  header{background:linear-gradient(90deg,var(--accent),#0757d0);color:#fff;padding:18px 20px;font-weight:800;letter-spacing:.3px}
+  main{max-width:1000px;margin:20px auto;padding:0 12px}
+  .card{background:var(--card);border:1px solid #e6eef6;border-radius:14px;box-shadow:0 6px 24px rgba(2,6,23,.06);padding:16px;margin-bottom:16px}
+
+  /* form */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .field{position:relative}
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  input,select,button{width:100%;padding:10px 12px;border:1px solid #dbe7f3;border-radius:10px;font-size:14px}
+  input:focus,select:focus{outline:none;border-color:#b4d3ff;box-shadow:0 0 0 3px rgba(11,110,253,.12)}
+  .btn{background:var(--accent);color:#fff;border:none;font-weight:700;cursor:pointer}
+  .btn.secondary{background:#1b9aee}
+  .btn:disabled{background:#94a3b8;cursor:not-allowed}
+  .actions{display:flex;gap:10px;flex-wrap:wrap}
+
+  /* suggestions */
+  .suggest{position:absolute;left:0;right:0;top:70px;background:#fff;border:1px solid #e6eef6;border-radius:10px;box-shadow:0 10px 24px rgba(2,6,23,.08);display:none;max-height:210px;overflow:auto;z-index:30}
+  .suggest div{padding:8px 10px;cursor:pointer}
+  .suggest div:hover{background:#f5faff}
+
+  /* flights list */
+  .flight-card{display:flex;justify-content:space-between;align-items:center;padding:14px;border:1px solid #e6eef6;border-radius:12px;margin-bottom:10px;background:linear-gradient(180deg,#fff,#fbfdff);cursor:pointer;transition:transform .08s}
+  .flight-card:hover{transform:translateY(-2px);border-color:#d2e6ff}
+  .f-info{display:flex;gap:12px;align-items:center}
+  .logo{width:44px;height:44px;border-radius:50%;background:#eef6ff;color:#0b6efd;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .meta{font-size:13px;color:var(--muted)}
+  .price{font-weight:900;color:#0b6efd}
+
+  /* seat map */
+  .seat-wrap{display:flex;gap:18px;align-items:flex-start}
+  .plane{flex:1;max-width:680px;background:linear-gradient(180deg,#f8fbff,#ffffff);border:1px solid #e6eef6;border-radius:14px;padding:16px}
+  .row{display:grid;grid-template-columns:repeat(3,56px) 24px repeat(3,56px);gap:8px;align-items:center;margin:6px 0}
+  .seat{height:44px;border-radius:10px;background:#eef2f7;border:1px solid #dbe7f3;display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer;user-select:none}
+  .seat.window{border:2px solid #7db8ff}
+  .seat.selected{background:#0ea5a6;color:#fff;border-color:#0ea5a6}
+  .seat.blocked{background:#c7cdd6;color:#445;cursor:not-allowed}
+  .legend{display:flex;gap:16px;margin-top:8px;color:var(--muted);font-size:13px}
+  .legend .sw{width:16px;height:16px;border-radius:4px;border:1px solid #dbe7f3;background:#eef2f7;margin-right:6px;display:inline-block;vertical-align:middle}
+  .legend .ss{background:#0ea5a6;border-color:#0ea5a6}
+  .legend .sb{background:#c7cdd6;border-color:#c7cdd6}
+
+  /* summary / payment */
+  .side{width:280px}
+  .sum-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e6eef6}
+  .muted{color:var(--muted)}
+  .method-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+  .option{border:1px solid #e6eef6;border-radius:10px;padding:10px;text-align:center;cursor:pointer}
+  .option.active{border-color:#0b6efd;box-shadow:0 0 0 3px rgba(11,110,253,.12)}
+  .pay-form{margin-top:10px}
+  .qr{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .qr img{width:448px;height:619px;object-fit:cover;border-radius:10px;border:1px solid #e6eef6;max-width:100%}
+
+  .success{display:none;text-align:center;color:var(--ok);font-weight:900;padding:12px}
+  .error{color:var(--warn);font-size:13px;margin-top:4px;display:none}
+
+/* ADD these new styles at bottom of <style> */
+.loader-box { text-align:center; padding:30px; display:none }
+.spinner {
+  border:5px solid #f3f3f3; border-top:5px solid var(--accent);
+  border-radius:50%; width:60px; height:60px;
+  animation: spin 1s linear infinite; margin:20px auto;
+}
+@keyframes spin { 100% { transform: rotate(360deg);} }
+
+.ticket-box { display:none; text-align:center; padding:20px }
+.ticket {
+  border:2px dashed var(--accent); border-radius:14px;
+  padding:20px; max-width:420px; margin:0 auto; background:#fff;
+}
+.ticket h3 { margin-top:0; color:var(--accent); }
+.ticket-row { margin:6px 0; font-size:15px; }
+
+h2, h3 {
+  text-align: center;
+}
+
+.main-title {
+  text-align: center;
+}
+
+/* --- Add this code to the bottom of your stylesheet --- */
+
+:root {
+  --primary: #0b6efd;
+  --secondary: #97CEE0;
+  --white: #ffffff;
+  --secondary-blue: #556FBA;
+  --tertiary-blue: #314589;
+}
+
+.btn1 {
+  position: relative;
+  cursor: pointer;
+  border: none;
+  font-family: 'Lexend Zetta', sans-serif;
+  color: var(--white);
+  background: transparent;
+  overflow: hidden;
+  border-radius: 25px;
+}
+
+.btn1::after {
+  content: '';
+  background: linear-gradient(to right, #0b6efd, #ffffff); 
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transition: all 1.3s ease-in;
+  z-index: 0;
+}
+
+.btn-text1 {
+  background: var(--primary);
+  padding: 0.5rem 1.5rem; 
+  font-size: 1rem;
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin: 3px;
+  border-radius: 23px;
+}
+
+.btn1:hover::after {
+  transform: rotate(180deg);
+  transition: all 1s ease-in-out;
+}
+
+
+
+</style>
+</head>
+<body>
+<header class="main-title">
+  <a href="index.html">
+    <button class="btn1">
+      <span class="btn-text1">
+        ✈ VentureVista
+      </span>
+    </button>
+  </a>
+</header>
+<main>
+
+  <!-- SEARCH -->
+  <section id="searchCard" class="card">
+    <h2>Find Flights</h2>
+    <div class="grid">
+      <div class="field">
+        <label>From</label>
+        <input id="from" type="text" placeholder="Start typing (e.g., Mum…)" autocomplete="off">
+        <div id="fromSug" class="suggest"></div>
+      </div>
+      <div class="field">
+        <label>To</label>
+        <input id="to" type="text" placeholder="Start typing (e.g., Del…)" autocomplete="off">
+        <div id="toSug" class="suggest"></div>
+      </div>
+      <div class="field">
+        <label>Date</label>
+        <input id="date" type="date">
+      </div>
+      <div class="field">
+        <label>Passengers</label>
+        <select id="pax">
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+        </select>
+      </div>
+    </div>
+    <div class="actions" style="margin-top:10px">
+      <button class="btn" onclick="handleSearch()">Search</button>
+      <button class="btn secondary" onclick="resetAll()">Reset</button>
+    </div>
+    <div id="searchErr" class="error" style="display:block"></div>
+  </section>
+
+  <!-- FLIGHTS -->
+  <section id="flightsCard" class="card" style="display:none">
+    <h2>Available Flights</h2>
+    <div id="flightsList"></div>
+  </section>
+
+  <!-- SEATS + SUMMARY + PAYMENT -->
+  <section id="seatCard" class="card" style="display:none">
+    <h2 id="seatTitle">Choose seats</h2>
+    <div class="seat-wrap">
+      <div class="plane">
+        <div id="planeRows"></div>
+        <div class="legend">
+          <div><span class="sw"></span> Available</div>
+          <div><span class="sw ss"></span> Selected</div>
+          <div><span class="sw sb"></span> Unavailable</div>
+        </div>
+      </div>
+      <div class="side">
+        <div class="card" style="padding:12px">
+          <h3 style="margin:0 0 8px 0">Summary</h3>
+          <div class="sum-row"><div class="muted">Flight</div><div id="sumFlight">—</div></div>
+          <div class="sum-row"><div class="muted">Route</div><div id="sumRoute">—</div></div>
+          <div class="sum-row"><div class="muted">Date</div><div id="sumDate">—</div></div>
+          <div class="sum-row"><div class="muted">Seats</div><div id="sumSeats">—</div></div>
+          <div class="sum-row"><div class="muted">Seat price</div><div id="sumPrice">₹ —</div></div>
+          <div class="sum-row" style="font-weight:900"><div>Total</div><div id="sumTotal">₹ —</div></div>
+          <div style="margin-top:10px">
+            <button class="btn" id="toDetailsBtn" onclick="openDetails()" disabled>Proceed</button>
+          </div>
+        </div>
+
+        <div id="detailsCard" class="card" style="padding:12px; display:none">
+          <h3 style="margin:0 0 8px 0">Passenger Details</h3>
+          <label>Name</label><input id="pName" placeholder="Full name">
+          <div id="eName" class="error">Only letters and spaces allowed.</div>
+          <label style="margin-top:8px">Phone</label><input id="pPhone" placeholder="10-digit number">
+          <div id="ePhone" class="error">Enter a valid 10-digit phone.</div>
+          <label style="margin-top:8px">Age</label><input id="pAge" type="number" min="1" max="120" placeholder="18">
+          <div id="eAge" class="error">Age must be 1–120.</div>
+          <button class="btn" style="margin-top:10px" onclick="openPayment()">Proceed to Payment</button>
+        </div>
+
+        <div id="paymentCard" class="card" style="padding:12px; display:none">
+          <h3 style="margin:10px 0 10px 0">Payment</h3>
+          <div class="method-grid">
+            <div id="optCard" class="option active" onclick="pickMethod('card')">💳 Card</div>
+            <div id="optUpi" class="option" onclick="pickMethod('upi')">📱 UPI QR</div>
+          </div>
+          <div id="payForms" class="pay-form"></div>
+          <div id="payErr" class="error">Please complete the required payment fields.</div>
+        </div>
+
+        <div id="successBox" class="success">✅ Payment Successful! Booking Confirmed.</div>
+
+        <!-- 🎫 Ticket UI -->
+        <div id="ticketBox" class="ticket-box">
+          <div class="ticket" id="ticketContent">
+            <h3>🎫 Venture Vista – e-Ticket</h3>
+            <div class="ticket-row"><b>Passenger:</b> <span id="tName"></span></div>
+            <div class="ticket-row"><b>Flight:</b> <span id="tFlight"></span></div>
+            <div class="ticket-row"><b>Route:</b> <span id="tRoute"></span></div>
+            <div class="ticket-row"><b>Date:</b> <span id="tDate"></span></div>
+            <div class="ticket-row"><b>Seats:</b> <span id="tSeats"></span></div>
+            <div class="ticket-row"><b>Total Paid:</b> <span id="tTotal"></span></div>
+          </div>
+          <button class="btn" style="margin-top:15px" onclick="downloadTicket()">⬇ Download Ticket</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  /* ================= CONFIG ================= */
+const CITY_SET = ["Mumbai","Delhi","Bengaluru","Kolkata","Chennai","Hyderabad","Pune","Goa","Ahmedabad","Jaipur", "Dubai", "London"];
+const AIRLINES = ["IndiGo","Air India","Vistara","SpiceJet","Akasa Air", "Emirates", "Lufthansa"];
+
+// Set minimum date to today
+document.getElementById('date').min = new Date().toISOString().split('T')[0];
+
+let currentSearch = { from:"", to:"", date:"", pax:1 };
+let currentFlight = null;
+let selectedSeats = [];
+let currentMethod = 'card';
+
+/* ================= SUGGESTIONS (City Auto-complete) ================= */
+function attachSuggest(inputId, boxId){
+  const inp = document.getElementById(inputId);
+  const box = document.getElementById(boxId);
+  
+  inp.addEventListener('input', ()=>{
+    const q = inp.value.trim().toLowerCase(); 
+    box.innerHTML = '';
+    if(!q){ box.style.display='none'; return; }
+    
+    const matches = CITY_SET.filter(c => c.toLowerCase().startsWith(q)).slice(0,5);
+    if(!matches.length){ box.style.display='none'; return; }
+    
+    matches.forEach(c => {
+      const row = document.createElement('div');
+      row.textContent = c; 
+      row.onclick = () => { inp.value = c; box.style.display='none'; };
+      box.appendChild(row);
+    });
+    box.style.display = 'block';
+  });
+  
+  document.addEventListener('click', e => {
+    if(e.target !== inp && !box.contains(e.target)) box.style.display='none';
+  });
+}
+attachSuggest('from','fromSug'); 
+attachSuggest('to','toSug');
+
+/* ================= 1. SEARCH FLIGHTS (Random + Always Results) ================= */
+function handleSearch(){
+  const from = document.getElementById('from').value.trim();
+  const to = document.getElementById('to').value.trim();
+  const date = document.getElementById('date').value;
+  const pax = parseInt(document.getElementById('pax').value, 10);
+  const err = document.getElementById('searchErr'); 
+  
+  err.style.display = 'none'; 
+  err.textContent = '';
+
+  if(!from || !to || !date){ 
+    err.textContent = 'Please fill all fields.'; 
+    err.style.display = 'block'; 
+    return; 
+  }
+  
+  if(from.toLowerCase() === to.toLowerCase()){
+     err.textContent = 'Source and Destination cannot be same.';
+     err.style.display = 'block';
+     return;
+  }
+
+  currentSearch = { from, to, date, pax };
+  
+  const list = document.getElementById('flightsList'); 
+  list.innerHTML = '';
+  document.getElementById('searchCard').style.display = 'none';
+  document.getElementById('flightsCard').style.display = 'block';
+
+  // --- GENERATE RANDOM FLIGHTS ---
+  const numberOfFlights = 3 + Math.floor(Math.random() * 3); // 3 to 5 flights
+  
+  for(let i=0; i<numberOfFlights; i++){
+    const airline = AIRLINES[Math.floor(Math.random() * AIRLINES.length)];
+    const price = 3000 + Math.floor(Math.random() * 5000); 
+    const depHour = 5 + Math.floor(Math.random() * 15); 
+    const durHour = 1 + Math.floor(Math.random() * 3); 
+    
+    const depTime = `${depHour < 10 ? '0'+depHour : depHour}:${Math.random() > 0.5 ? '00' : '30'}`;
+    const arrHour = depHour + durHour;
+    const arrTime = `${arrHour < 10 ? '0'+arrHour : arrHour}:${Math.random() > 0.5 ? '15' : '45'}`;
+    const flightNo = `${airline.slice(0,2).toUpperCase()}-${100 + Math.floor(Math.random()*899)}`;
+
+    const f = { airline, flightNo, from, to, date, depTime, arrTime, price };
+
+    const card = document.createElement('div'); 
+    card.className = 'flight-card';
+    card.onclick = () => chooseFlight(f);
+    card.innerHTML = `
+      <div class="f-info">
+        <div class="logo">${f.airline[0]}</div>
+        <div>
+          <div style="font-weight:800">${f.airline} • ${f.flightNo}</div>
+          <div class="meta">${f.from} → ${f.to} • ${f.date}</div>
+          <div class="meta">${f.depTime} – ${f.arrTime}</div>
+        </div>
+      </div>
+      <div class="price">₹${f.price.toLocaleString()}</div>`;
+    list.appendChild(card);
+  }
+}
+
+function resetAll(){ location.reload(); }
+
+/* ================= 2. SEAT SELECTION ================= */
+function chooseFlight(f){
+  currentFlight = f; 
+  selectedSeats = [];
+  
+  document.getElementById('flightsCard').style.display = 'none';
+  document.getElementById('seatCard').style.display = 'block';
+  
+  document.getElementById('seatTitle').textContent = `Choose seats: ${f.flightNo}`;
+  document.getElementById('sumFlight').textContent = f.flightNo;
+  document.getElementById('sumRoute').textContent = `${f.from} → ${f.to}`;
+  document.getElementById('sumDate').textContent = f.date;
+  document.getElementById('sumPrice').textContent = `₹${f.price.toLocaleString()}`;
+  document.getElementById('sumSeats').textContent = '—'; 
+  document.getElementById('sumTotal').textContent = '₹ —';
+  document.getElementById('toDetailsBtn').disabled = true;
+  
+  renderPlane(f.price);
+}
+
+function renderPlane(price){
+  const plane = document.getElementById('planeRows'); 
+  plane.innerHTML = '';
+  
+  for(let r=1; r<=10; r++){
+    const row = document.createElement('div'); 
+    row.className = 'row';
+    ['A','B','C'].forEach(l => row.appendChild(makeSeat(r+l, price, l==='A')));
+    const gap = document.createElement('div'); row.appendChild(gap);
+    ['D','E','F'].forEach(l => row.appendChild(makeSeat(r+l, price, l==='F')));
+    plane.appendChild(row);
+  }
+}
+
+function makeSeat(id, price, isWindow){
+  const s = document.createElement('div'); 
+  s.className = 'seat'; 
+  if(isWindow) s.classList.add('window');
+  if(Math.random() < 0.15) s.classList.add('blocked');
+  
+  s.textContent = id; 
+  s.onclick = () => {
+    if(s.classList.contains('blocked')) return;
+    const maxPax = parseInt(currentSearch.pax, 10);
+    if(!s.classList.contains('selected') && selectedSeats.length >= maxPax){ 
+      alert(`You can only select ${maxPax} seat(s).`); return; 
+    }
+    s.classList.toggle('selected');
+    if(s.classList.contains('selected')) selectedSeats.push(id); 
+    else selectedSeats = selectedSeats.filter(x => x !== id);
+    updateSummary(price);
+  }; 
+  return s;
+}
+
+function updateSummary(price){
+  const count = selectedSeats.length;
+  document.getElementById('sumSeats').textContent = count ? selectedSeats.join(', ') : '—';
+  document.getElementById('sumTotal').textContent = count ? `₹${(count * price).toLocaleString()}` : '₹ —';
+  document.getElementById('toDetailsBtn').disabled = count === 0;
+}
+
+/* ================= 3. PASSENGER DETAILS ================= */
+function openDetails(){ document.getElementById('detailsCard').style.display = 'block'; }
+function openPayment(){ document.getElementById('paymentCard').style.display = 'block'; pickMethod('card'); }
+
+/* ================= 4. PAYMENT (Fixed Button) ================= */
+/* ================= 4. PAYMENT (Fixed QR Code) ================= */
+function pickMethod(m){ 
+  currentMethod = m;
+  document.getElementById('optCard').classList.toggle('active', m==='card');
+  document.getElementById('optUpi').classList.toggle('active', m==='upi');
+  const box = document.getElementById('payForms');
+  const amount = document.getElementById('sumTotal').textContent;
+  
+  if(m === 'card'){
+    box.innerHTML = `
+      <label>Amount</label><input value="${amount}" disabled style="background:#eee">
+      <label>Card Number</label><input id="cardNum" placeholder="16-digit number">
+      <div class="grid">
+        <div><label>Expiry</label><input id="cardExp" placeholder="MM/YY"></div>
+        <div><label>CVV</label><input id="cardCVV" type="password" maxlength="3"></div>
+      </div>
+      <button class="btn" style="margin-top:15px; width:100%" onclick="submitPayment()">Pay Now</button>`;
+  } else {
+    // FIXED: Added height:150px explicitly to match width and prevent stretching
+    box.innerHTML = `
+      <div class="qr" style="text-align:center; margin-bottom:15px;">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=venturevista@upi&am=100" 
+             style="width:150px; height:150px; object-fit:contain; border:1px solid #ccc; border-radius:8px;">
+      </div>
+      <label style="margin-top:10px">UPI ID</label><input id="upiId" placeholder="user@upi">
+      <label style="margin-top:10px">Confirm</label>
+      <select id="upiConfirm"><option value="">Select...</option><option value="yes">Paid</option></select>
+      <button class="btn" style="margin-top:15px; width:100%" onclick="submitPayment()">Confirm Payment</button>`;
+  }
+}
+
+// --- SAVING TO DATABASE ---
+async function submitPayment(){
+  const showErr = (msg) => { const e = document.getElementById('payErr'); e.textContent = msg; e.style.display = 'block'; };
+  document.getElementById('payErr').style.display = 'none';
+
+  if(currentMethod === 'card'){
+    if(!/^\d{16}$/.test(document.getElementById('cardNum').value)) return showErr('Enter 16-digit card number');
+  } else {
+    if(document.getElementById('upiConfirm').value !== 'yes') return showErr('Please confirm payment');
+  }
+
+  // PREPARE DATA
+  const bookingData = {
+    passengerName: document.getElementById('pName').value || 'Unknown',
+    phone: document.getElementById('pPhone').value || '0000000000',
+    flightId: currentFlight.flightNo,
+    route: `${currentSearch.from} → ${currentSearch.to}`,
+    date: currentSearch.date,
+    seats: selectedSeats,
+    totalPaid: parseInt(document.getElementById('sumTotal').textContent.replace(/[^\d]/g, ''))
+  };
+
+  try {
+    // SEND TO BACKEND
+    const res = await fetch('http://localhost:5000/api/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bookingData)
+    });
+
+    if(res.ok){
+      // SUCCESS UI
+      document.getElementById('paymentCard').style.display = 'none';
+      document.getElementById('detailsCard').style.display = 'none';
+      document.getElementById('successBox').style.display = 'block';
+      document.getElementById('ticketBox').style.display = 'block';
+      
+      // FILL TICKET
+      document.getElementById('tName').textContent = bookingData.passengerName;
+      document.getElementById('tFlight').textContent = currentFlight.flightNo + " (" + currentFlight.airline + ")";
+      document.getElementById('tRoute').textContent = bookingData.route;
+      document.getElementById('tDate').textContent = bookingData.date;
+      document.getElementById('tSeats').textContent = selectedSeats.join(', ');
+      document.getElementById('tTotal').textContent = "₹" + bookingData.totalPaid;
+    } else {
+      showErr("DB Error: Not saved.");
+    }
+  } catch(error) {
+    console.error(error);
+    showErr("Server Error. Is Node running?");
+  }
+}
+
+/* ================= 5. DOWNLOAD TICKET ================= */
+function downloadTicket(){
+  const ticket = document.getElementById("ticketContent");
+  html2canvas(ticket).then(canvas => {
+    const imgData = canvas.toDataURL("image/png");
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    pdf.addImage(imgData, "PNG", 10, 10, pdfWidth - 20, pdfHeight);
+    pdf.save("VentureVista_Ticket.pdf");
+  });
+}
+</script>
+
+</body>
+</html>

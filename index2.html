@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Booking Results</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 400px;
+    }
+    h2, h3 {
+      text-align: center;
+      color: #0b6efd;
+    }
+    p {
+      margin: 5px 0;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Search Results</h2>
+    <p id="loading">Loading available flights...</p>
+    
+    <div id="summary" class="hidden">
+      <h3>Booking Summary</h3>
+      <p><b>From:</b> <span id="resFrom"></span></p>
+      <p><b>To:</b> <span id="resTo"></span></p>
+      <p><b>Date:</b> <span id="resDate"></span></p>
+      <p><b>Passengers:</b> <span id="resPassengers"></span></p>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      if (document.getElementById("resFrom")) {
+        setTimeout(() => {
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("summary").classList.remove("hidden");
+
+          document.getElementById("resFrom").textContent = localStorage.getItem("from");
+          document.getElementById("resTo").textContent = localStorage.getItem("to");
+          document.getElementById("resDate").textContent = localStorage.getItem("date");
+          document.getElementById("resPassengers").textContent = localStorage.getItem("passengers");
+        }, 1000); // simulate loading
+      }
+    });
+  </script>
+</body>
+</html>

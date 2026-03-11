@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Payment Options</title>
+<style>
+  body { font-family: Arial, sans-serif; background:#f4f7fb; margin:0; padding:0; }
+  .container { max-width:600px; margin:40px auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+  h2 { text-align:center; }
+  .options { display:flex; gap:20px; justify-content:center; margin-top:20px; }
+  .option { border:1px solid #ccc; border-radius:8px; padding:20px; text-align:center; flex:1; cursor:pointer; }
+  .option:hover { border-color:#0b6efd; }
+  .hidden { display:none; }
+  input { width:100%; padding:8px; margin:6px 0; border:1px solid #ccc; border-radius:6px; }
+  button { padding:10px 16px; border:none; border-radius:6px; cursor:pointer; background:#0b6efd; color:#fff; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>Choose Payment Method</h2>
+  <div id="amountBox" style="text-align:center;font-size:18px;font-weight:bold;"></div>
+  <div class="options">
+    <div class="option" onclick="showCard()">Debit/Credit Card</div>
+    <div class="option" onclick="showUpi()">UPI QR</div>
+  </div>
+
+  <!-- Card Payment -->
+  <div id="cardBox" class="hidden">
+    <h3>Card Payment</h3>
+    <input type="text" placeholder="Card Number">
+    <input type="text" placeholder="MM/YY">
+    <input type="text" placeholder="CVV">
+    <button onclick="paymentSuccess()">Pay</button>
+  </div>
+
+  <!-- UPI QR -->
+  <div id="upiBox" class="hidden">
+    <h3>Scan QR to Pay</h3>
+    <img src="upi.png" width="448" height="619" alt="UPI QR">
+    <br><br>
+    <button onclick="paymentSuccess()">I Have Paid</button>
+  </div>
+</div>
+
+<script>
+document.getElementById("amountBox").innerText=localStorage.getItem("amount")||"Total: ₹0";
+function showCard(){ document.getElementById("cardBox").style.display="block"; document.getElementById("upiBox").style.display="none"; }
+function showUpi(){ document.getElementById("upiBox").style.display="block"; document.getElementById("cardBox").style.display="none"; }
+function paymentSuccess(){ window.location.href="success.html"; }
+</script>
+</body>
+</html>
